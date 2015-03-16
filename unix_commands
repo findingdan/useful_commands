@@ -1,0 +1,461 @@
+tele
+	(gives directory information)
+abc{1,2} 
+	will expand to abc1 abc2
+write octal value
+	echo '\046'
+set variable name with set command
+	cgp-login[dk6]228: set variable_name = 3.14159
+	cgp-login[dk6]229: echo $variable_name
+	3.14159
+Redirects
+	>& file means both stdout and stderr will be written to file, overwriting it if it exists, and creating it if it doesn't.
+	>> file means stdout will be appended at the end of file.
+	>>& file means both stdout and stderr will be appended at the end of file.
+	< file means stdin will be read from file.
+	<< string is a here document. Stdin will read the following lines up to the one that matches string.
+	1>filename
+	# Redirect stdout to file "filename."
+	 1>>filename
+	# Redirect and append stdout to file "filename."
+	2>filename
+	# Redirect stderr to file "filename."
+	2>>filename
+	# Redirect and append stderr to file "filename."
+	&>filename
+	# Redirect both stdout and stderr to file "filename."
+	# This operator is now functional, as of Bash 4, final release.
+chr(), ord()
+	chr will convert a decimal to it's ASCII character
+	ord does reverse
+	Examples:
+	chr(97) will return 'a'
+	ord(a) will return '97'
+conditionals
+	if (`echo "2+2" | bc` < 3) then
+		echo "hi"
+	else if (`echo "2+2" | bc` == 3) then
+	        echo "yes, equal to 3"
+	else
+	        set var="new variable" && echo $var
+	endif
+	NOTE: in bash, if then else if is:   if [ ]; then elif; [ ]; fi
+		ex:   if [ -f $file ]; then  echo "found it"; fi
+Useful commands
+	Invoking previous commands using command history
+	!! executes the previous command
+	!n executes the nth command that was previously executed
+	!-n executes the command that was executed n commands ago
+	!string executes the most recently-executed command that starts with string
+	!?string executes the most recently-executed command that contains string
+	Using history in new commands
+	!* - refers to all of the arguments from the previous command
+	!$ - refers to the last argument from the previous command
+	!^ - refers to the first argument form the previous command
+	!:n - refers to the nth argument from the previous command
+	!:m-n - refers to the mth through nth arguments from the previous command
+	!:n-$ - refers to the nth through the last argument from the previous commands
+lsf
+	lshosts -w lists the hosts, #cpus, mem
+	bjobs (lists my jobs running). -d finished recently -p pending -r running
+	bqueues - view job slot limits according to queues
+	jobs may be done (successfully completed) or exited (non-zero exit value)
+	each queue can use all server hosts
+	a host is an individual computer in the cluster, but each host may have more than one processor
+	client host - farm2-login, a host that that is only capable of submitting a job but not executing
+	bsub -R, restrict which hosts the job can run on, only hosts with these resources will be candidates for executing the job
+	-J specifies a job name (which is different from the Job ID); Job ID is unique, job name may not be unique
+	bill -r forces removal of a job
+	syntax for dependencies: -w 'done(312) && (started(Job2)||exit("99Job"))'
+xargs
+	ls `pwd`/liz_MP_2_Inf2_chr21_22.bam | xargs -I file cp file --target-directory=/lustre/scratch103/sanger/dk6/solid_bams
+sleep syntax
+	while [[ -n `ps -f | grep $file_1 | grep java | awk '{print $2}'` ]]; do sleep 5; echo "waiting for $file_1 reheader" >> $RGSM.e; done
+phred quality scores fastq key
+	Given a character $sq, the following Perl code gives the Phred quality $Q: 
+	$Q = 10 * log(1 + 10 ** (ord($sq) - 64) / 10.0)) / log(10);
+	http://seqanswers.com/forums/showthread.php?t=2312
+Perl one-liner
+	perldoc perlrun 
+Bash arithmetic
+	echo $[ 5 * 3 ]
+		15
+	echo $[ 10 / 2 ]
+		5
+Perl, open bamfile as samfile
+	open (FILE, "samtools view example.bam |") or die $!;
+	open (FILE, "zcat file.gz |")
+Using bash read (readline), you can split up lines into variables.
+	head test_listing.fofn | sed -e 's/\//\t/g' | while read -a myArray; do echo ${myArray[3]}; done
+	-a aname 
+	The words are assigned to sequential indices of the array variable aname, 
+	starting at 0. All elements are removed from aname before the assignment. 
+	Other name arguments are ignored.
+Perl regex oneliner
+	echo "2351d.fa" | perl -ne 'if ($_ =~ m/\d+\.fa$/) { print "This is it $_" }'
+Vim edit subset of file
+	 replace test with truth on all lines from here to end of file
+		: .,$s/test/truth/g  
+	from here and back 5
+		:-5,.s/up/right/ 
+	up and down 5 from here
+		:-5,+5s/up/right/ 
+	Another useful option flag is the confirm flag
+		a c at the end of the command.
+	Combines a grep and a substitute
+		:g/some text/s/search text/replacement text/
+		:!g means grep -v
+Perl hash sort syntax
+	my @sorted_hash = sort { $a cmp $b } @sort_hash;
+The LSF job index variable is
+	${LSB_JOBINDEX}p 
+R Subsetting
+	out[out[,"MAF_bin"]==20,]
+R Functions
+	Name a function
+		my_function <- function (bin) {
+	subset notation is data[data$col some conditional value,]  <- remember the , to grab the column?
+		data_subset <- as.matrix(out[out$MAF_bin==bin,])
+	You can select multiple columns of data using the data[,c(columns)] notation
+		NRD <- sum(c(data_subset[,c(5,9)]))/sum(c(data_subset[,c(2:9)]))
+		het_sensitivity <- sum(data_subset[,5])/sum(c(data_subset[,c(2,5,8)]))
+	Return the values of the function, vs print which will print it out
+		return(c(NRD,het_sensitivity))
+		}
+
+	R> sapply(20:25, my_function)
+	apply(x,MARGIN=1, my_data)
+	# NOTE, in the above lines it is an error to write: my_function() or my_data() .
+
+Perl get number of hash elements in %hash{$hash2}
+	my $number_of_read_bins = scalar (keys %{$hash{$_}});
+Bash include a readable file
+	if [ ! -s $my_file ]; then echo "You must include a readable file"; exit ; fi
+Bash stderr output
+	>/dev/fd/2 is output to stderr
+Bash /dev/fd/0
+	Can be used to hold stdin
+	echo test > test; echo test2 > test2; echo test3 > test3; cat test2 | cat test /dev/fd/0 test2; rm test[123]
+		test
+		test2
+		test2
+Barplot in R, with multiple columns, adjusting the legend
+	barplot(as.matrix(vcf_stats[c(3,8),]),ylab="Number of Sites",xlab="Coverage, in ' x '",  \
+	main="Proportion of Low Coverage Sites Also Seen in Truth Set",legend.text=(c("Sites In Common","Sites Only In Low Cov")),args.legend=list(x="topleft"))
+Perl Condition In-Line
+	$new_val = ($var == 5) ? 10 : 20;
+Split a bash variable into an array
+	x=(`echo "123 456"`);
+	echo ${x}
+	123
+Perl Subroutine
+	Remember that the input var is @_, an array containing the elements fed into the subroutine
+	sub smallest {
+        my $string = $_[0];
+	}
+Nice way to loop over things Bash
+	for coverage in 0.1 0.25 0.5 1 1.5 2 2.5; do mkdir coverage_${coverage}; done
+Send commands into a screen session
+	screen -S spawn.screen -d -m -c /dev/null -- sh -c '`./run_mpileup_farm.sh; bash`'
+Awk OR
+	awk '/^#/||$7=="PASS"'   
+	Notice how the or in awk is || and not |
+	Notice how you can use the conditional with the $7
+	Notice how the awk string conditional is == and not eq like in perl
+Disable phone home in GATK
+	-et NO_ET
+Useful way to split and assign in perl
+	($gl_rr,$gl_ar,$gl_aa) = split(/,/,$$dat{GL});
+R subset data and compute (use by, or tapply, maybe even aggregate() )
+	by(test, test$MAF_bin, function(x)  cor.test(x$test,x$truth)$estimate)
+	I think the difference between by and tapply is that tapply does an operation (function) with respect to a subset (index) of a column of data
+	while, by does the same but can operate on more than one column of data (as it doesn't operate over an array but over any R object including data frames and matrices)
+	and i think "apply" just does something over and over again
+VCF File
+	Remove anything not PASS
+	zcat pooled.vcf.gz | awk '$1 ~ /^#/ || ( $1 ~ /^[0-9]/ && $7=="PASS" )
+Awk, pass shell variable
+	use -v option in awk to specify variables.  DO NOT USE a $ before the variable in the awk '{ }' 
+	awk -v lower=$lower -v upper=$upper '$7 > lower && $7 < upper && $12==0 && $13==0 && $14==0 && $15==0 {print..}'
+	??If i include $ in the ' ' of awk use a \ before the $, like \$1
+Remove CR line terminators
+	cat pd_project.txt | tr  '\015' '\n' > tmp
+		# this is because 15 is the ascii code for carraige terminator.  
+Remove files of large / small size from this directory
+	find . -size +5G | xargs rm
+	find . -size -10k | xargs rm  
+	for some reason -1k -1M doesn't work, more than 1 is fine, dunno why
+Sort by chrom then by coord
+	sort -k1,1 -k2,2n
+Good way to get output of piped commands in perl
+	try_pipe.pl
+	open PIPE, "commands like cat file.txt | " or die;
+	while (<PIPE>) {  #stuff }; close PIPE;
+Start reading from the 48th line to the end of the file
+	tail -n+48 merged_asm/tmp/mergeSam_fileEf62sh 
+Where to find number of processors, cores on the node
+	 /proc/cpuinfo
+Dont forget to require that only processors on one host will be used when multithreading on lsf
+	add to -R:  span[hosts=1]
+Perl counting
+	use tr/[values]// if counting	q
+Perl sorting hash of hash values
+	for my $pos (sort { $a <=> $b } keys %{$child_genotypes{$chr}}) {
+Perl conditional shortcut
+	(expression) ? (statement if true) : (statement if false)
+	($date == $today) ? print "Happy B.Day!\n" : print "Happy Day!\n";
+Perl hash vs scalar
+	keys %{$fam_call{$child}{$chr}}  vs keys %{$fam_call{$child{chr}}}
+	The difference between the two above is the
+		first one is a %fam_call hash, of which $child and $chr are keys
+		second one is a hash of a hash, where %fam_call and %child are both hashes
+Perl concatenate all elements of an array except the last one
+	join "/", @array[0..($#array-1)]
+Awk
+	NF is the number of fields per line
+		awk '{print NF}' will print tne number of fields per line (number of columns)
+		awk '{print $NF}' will print the values in the field (tab del is default)
+	NR is the line number of the file
+		awk '{print NR} will print the line numbers of each line
+		awk '{print $NR}' will print the values in column i for line number i, so for 4th line, i'll print the value in the 4th column
+Perl array_ref and split
+	my $var_ref = [ (split /[;]/, $parse_line[7]) ]
+Useful watch syntax (remember single quotes)
+	watch 'bjobs | grep sep | wc'   
+	Including the awk single quote for some reason has to be rediculously ugly
+	watch 'bjobs | awk '"'"'{print $3}'"'"' | sort | uniq -c'
+Difference between value and its index when sampling in R
+	sample(a,nrow(a),replace=T)
+	317 305 307 306 -21 310  -5  -3 320  -7 302 -18 304 -15 323 -20 -19 300 300 -1 -16 -17 311 319 305
+	sample(nrow(a),nrow(a),replace=T)
+	16  8  1 18 14 18 15 14 19 13 15  3  1  5 23 15  1 10 15 14 18 14  6 23 19
+R is.na and is.null are different
+	loaded a file into a dataframe, or using a vector
+		if (!is.null(variable)) { ... }
+Assigning variable to globalEnvironment in a function in R
+    load_file <- function(var_name,file_path) {
+        if(is.null(var_name)) {
+            # R lesson; had to use "assign" to assign the variable "var_name" with reading the file
+            assign(as.character(var_name), read.table(file_path,head=T),pos=.GlobalEnv)
+        }
+    }
+Environments in R
+	#Note that .GlobalEnv points to the global environment, which is the environment that opens when R opens
+	# the environment within which the function operates is not the global environment.  
+	# you can tell that by printing the environment in the function  
+	> my_func <- function () { print(environment()) }; my_func()
+	<environment: 0x1034cf510>
+	> environment()
+	<environment: R_GlobalEnv>
+	> 
+Get the chromosomes in order from a file
+	for i in 1 10 11 12 13 14 15 16 17 18 19 2 20 21 22 3 4 5 6 7 8 9 M X Y;  do  grep "^chr$i[[:blank:]]" known_genes_hg18.gtf >> known_genes.sorted.gtf; done
+Using exec
+	find ./ -name "*libraryComplexity*" -exec cat {} \; | grep Size
+Test the age of a file, remake if it is old
+	age_test=`find $file -ctime +3 -print 2>/dev/null`; [[ -f $age_test ]] && var="make_file"
+Test the size of a file
+	find . -size -5k  | xargs rm
+	find . -size -100c  <--- bytes
+Bash Array element
+	for i in ${dir[@]}
+Bash array element subsets
+	${myArray[@]:1:12}
+Submit long running interactve job on the farm (like for interacting in an R session that you dont want to close)
+	bsub -q long -o out2 -Is screen
+mysql query involving join and using and where 
+	 adb query 'select sample_id, tmp_path from dataset join sample_dataset using (dataset_id) where dataset_type_id = ?' gatk_vcf
+Checking for exists and defined in perl 
+	# Lesson: if a scalar == 0, then the check for it's existance is :  if (defined($var)) { }  and NOT  if ($var) { }.
+	perl -e '$var =0; if ($var) {print "yes"}'  -> will NOT print yes (because for perl something =0 is undefined).  
+	perl -e '$var =0; if (!$var) {print "yes"}'   -> will print yes
+	perl -e '$var =0; if (defined($var)) {print "yes"}'  -> will print yes
+R "by" command
+	by(data_set, the_level_you're_doing_a_function_by, the function)
+	ex: where col 1 is sample name, and col 3 is some values
+	by(indiv[,3],indiv[,1],mean)
+		WTCCC65569 1 0.7237
+		WTCCC65777 2 0.7175
+		WTCCC65810 3 0.7287
+		WTCCC65569 4 0.7065
+		WTCCC65777 5 0.7211
+		WTCCC65810 6 0.7347
+Perl convenient chr header printer
+	print "sample\t", join ("\t", map { "chr$_" } 1..22),"\n";
+	my @chr_segments = map {$_ . "p", $_. "q"} (1..22);
+R png graphics
+	http://stackoverflow.com/questions/8399100/r-plot-size-and-resolution
+Perl sort by array ref
+	 for (sort {$a->[0] <=> $b->[0] } @calls_out_upi_aoa) {
+Perl way to remove element from array
+	@array=@array[0..($index-1),($index+1)..$#array]
+R syntax for apply, with and without "function"
+	These all do the same thing
+	lapply(b,function(x) read.table(x,head=T,skip=2))
+	lapply(b,read.table, head=T,skip=2)
+	lapply(b,function(x) { read.table(x,head=T,skip=2) } )
+Perl
+	nice way to create a new directory, 
+	use File::Path;
+	eval { mkpath($dir) };
+R interval notation
+	a ≤ x < b	[a, b)       
+Sed
+	use & to grab a pattern
+	sed -e 's/^[0-9]/chr&/'
+Perl
+	testing for empty arefs, hrefs
+	Remember if it is empty, it's probably uninitialized, so instead of 
+		if (scalar $empty_aref == ) { }   <-- will give uninitialized warning
+	give
+		if (! $empty_aref) {} <--- works
+Perl
+	sub references
+	a subroutine, get_opts, which stores returns a hash reference.  Inside the sub, i've got something like %hash; $hash{child} => value; return(\%hash);
+	my $child_vcf = &get_opts()->{child};
+CPAN Install
+	perl -MCPAN -we 'install Iterator::Simple'
+R split up data by column into a data.frame
+	by(  data=a,INDICES=list(a[,1],a[,2]),function(x) {x})  
+	cbound_by_obj<-cbind(by(  data=a,INDICES=list(a[,1],a[,2]),function(x) { big_ROH_pieces<- x[,3]>10000; sum(big_ROH_pieces,na.rm=T)  }))
+	cbound_by_obj<-cbind(by(  data=a,INDICES=list(a[,1],a[,2]),function(x) { big_ROH_pieces<- x[,3]>10000; sum(big_ROH_pieces,na.rm=T)  }))
+Removing line terminators
+	tr -d '\015' < infile.txt > outfile.txt
+	tr '\015' '\n' < Recombination_Map.txt > outfile.txt
+Use awk to get every 50th line of a file
+	cat genetic_map_chr*hg19 | sed -e 's/chr//' | cut -f 1,2,4 | awk 'NR%50 == 0'  > genetic_map_all_chrs.txt.bed.hg19
+Sort autosomes numerically, then sex-chromosomes
+	@chr = sort { ($a =~ /\d+/ && $b =~ /\d+/) ? $a <=> $b : $a cmp $b } @chr;
+Grep
+	pipe search pattern into grep
+	grep ... | fgrep -f - file1 file2 ...
+How to grab patterns in sed (last character of string)
+	sed -e 's/\(^.*\)\(.$\)/\2/'
+	sed 's/.*\(..$\)/\1/'
+R function to sort by genomic coordinate
+	last = 0;
+	ch = list();
+	SNPorder = vector(length=dim(SNPpos)[1])
+	for (i in 1:length(chrs)) {
+	  chrke = SNPpos[SNPpos[,1]==chrs[i],]
+	  chrpos = chrke[,2]
+	  names(chrpos) = rownames(chrke)
+	  chrpos = sort(chrpos)
+	  ch[[i]] = (last+1):(last+length(chrpos))
+	  SNPorder[ch[[i]]] = names(chrpos)
+	  last = last+length(chrpos)
+	}
+Perl range (slide) of array reference
+	my $aref = [ 1,2,3,4,5,6,7,8,9,10,11,12,13 ];
+	print Dumper @{ $aref } [2..3];
+Perl debug benchmarking
+	 perl -d:Profile exome_LRRs_and_BAFs_generator.pl
+Mysql command to join tables
+	select p.decipher_id, c.name, c.email, cent.name from person as p join clinician as c, centre as cent where p.id_clinician=c.id_clinician and c.centre=cent.id_centre and decipher_id='257814';
+Mysql connect to ucsc
+	mysql --user=genome --host=genome-mysql.cse.ucsc.edu -A --database hg19 
+Postgres connect to analysis and lims
+    psql --port=5439 --host=pgsrv5 analysis_live
+    psql --port=5444 --host=ddd-lims-db fe_prod
+Good png plot dimentions R
+	landscape: width=1200,height=700,res=75
+	portrait: width=700,height=700,res=75
+# Perl get values of hash
+	 return if ( exists ((values %{ $vcf_href->{gtypes} } )[0]->{TEAM29_FILTER_FAIL}) );
+# Run R without interactive bsub job
+	/software/R-2.13.0/bin/R
+# Running IGV
+	bsub -q yesterday -R "select[mem>2000] rusage[mem=2000]" -M 2000000 "igv"
+R increase line wrapping width
+	options(width=140)
+LIMS sequenom test
+	psql -o sequenom_check_psql_output.txt --port=5444 --host=ddd-lims-db fe_prod --command 'select pp.stable_id as proband_stable_id,ps.sanger_id as proband_sanger_id,mp.stable_id as mother_stable_id,ms.sanger_id as mother_sample,fp.stable_id as father_stable_id,fs.sanger_id as father_sample,tqc.score from slf_sample ps join trio_qc tqc on(ps.id_slf_sample = tqc.proband) join tube pt on(ps.id_tube = pt.id_tube) join person pp on(pp.id_person = pt.id_person) left join slf_sample ms on (tqc.mother = ms.id_slf_sample) left join tube mt on(ms.id_tube = mt.id_tube) left join person mp on(mp.id_person = mt.id_person) left join slf_sample fs on (tqc.father = fs.id_slf_sample) left join tube ft on(fs.id_tube = ft.id_tube) join person fp on(fp.id_person = ft.id_person)'
+# Use bmod to add job_slot_limit after submission (while large number of jobs in jobarray are pending)
+	bmod -J "%250" 23161  #where 23161 is the JOBID
+	bmod -R "select[mem>250] rusage[mem=250]" -M250 434882
+	use bjobs -Al  23161 to look at the jobarray info
+AWK sum
+	awk 'BEGIN {sum=0} {sum+=$0} END {print sum}'
+	awk 'BEGIN {sum=0} ; {sum+=$0} ; END {print sum}' #same
+	# cumulative sum
+	awk 'BEGIN {sum=0} {sum+=$0; print sum}'
+large R jobs on farm
+	bsub -qyesterday -Ip -J "runR" -R "select[mem>3000] rusage[mem=3000]" -M 3000 R --no-save
+sort starting by the 10th position in the 4th column
+	 sort -nk4.10 
+AWK print integers
+	awk 'OFMT = "%.0f" {print $1"\t"($2+$3)/2}
+Sed print a line then stop
+	sed -n '2,${p;q;}' <file>
+R classes
+	attributes()  lists all the attributes assigned to the object?
+	  one attribute might be named 'codepage' which has value of 1252
+    attr(x,"codepage")
+      returns 1252
+	attr(x,"codepage")
+Calculation on the fly using sed
+	cat TEDS_lrr_baf_QCIndOnly.txt | awk 'BEGIN{FS=" "};{print NF}' | echo "(`sed 1q` - 3)/2" 
+Print first 10 columns of a file (better thatn "awk '{print $1"\t"$2"\t"$3"\t"$4...}'
+	perl -nle '@a=split;print join "\t", @a[0..9]'
+Map example
+	 ($c, $m, $f) = map { defined($_) ? $_ : "none" } ($c, $m, $f);
+Get processor info
+	/proc/cpuinfo
+# Bash assigning elements of an array
+	a=`sed -n ${LSB_JOBINDEX}p plot_these.txt`
+	set $a; # assigns $1 $2 $3 and so on to elements of the string
+	echo $1 $2
+Check chr
+	if ($line_array[1] !~ /^[1-9]$|^[1][0-9]|^[2][0-2]$|x|y|xy|m|mt/i) {
+Big R job
+	mem=3000; bsub -qyesterday -Ip -J "runR" -R "select[mem>$mem] rusage[mem=$mem" -M $mem /software/R-2.15.2/bin/R --no-save
+# Try command in R
+	data_try <- try ( load(data_file), silent = TRUE )
+	while (! is.null(attr(data_try,"condition")$message)) {
+	    Sys.sleep(2)
+	    data_try <- try ( load(data_file), silent = TRUE )
+	}
+#using git Git github Github
+A repository must already exist on githob
+	git add README.md	# stages the file
+	git commit -m 'first commit'	# adds comment
+	git remote add origin git@github.com:findingdan/tmp.git # tells where your repository is on the remote server
+	# git remote set-url origin git://new.url.here if you need to change to a different remote origin
+	git push origin master  # advance the changes
+# semitransparency using cairo
+	library(Cairo); CairoX11()
+	R> rect(4, 4, 6, 6,col=rgb(1, 0, 0,0.5))
+# Get bam
+	select * from dataset where dataset_type_id='ibam' and person_stable_id='DDDP102254';
+	psql -h ddd-lims-db -p 5444 ddd_prod --command  "select * from dataset where person_stable_id='DDDP100009' and dataset_type_id='ibam'"
+# Use R to bin data
+	 dat <- rnorm(1000); breaks = quantile(dat, seq(0,1,0.2)); x <- data.frame(dat,cut(dat,breaks))
+# Get pid,did,sid
+	psql -h ddd-lims-db -p 5444 ddd_prod --command "select p.stable_id, p.decipher_id, s.sanger_id from person p, tube t, slf_sample s where s.id_tube=t.id_tube and t.id_person=p.id_person and p.failed=false"
+# ddd lfs quota
+	lfs quota -g ddd  .
+# Get number of files in subdir
+	find -maxdepth 2 -type d | tail -n+2 | while read line; do echo $line $(ls -llR $line | wc -l); done > files
+# R LSB 
+	x = as.numeric(Sys.getenv('LSB_JOBINDEX'))
+	jobid = as.character(Sys.getenv('LSB_JOBID'))
+# Tar
+	tar cvzf bsub_output.tar.gz *
+# Careful how LRR is recorded in graphs
+ #LRR <- 2^LRR * 0.5 # i think this is incorrect
+ #LRR <- 0.5+(LRR/2)  # i think this is correct. the scale is given by the axis on the right..
+# Installing python module from tar
+	pip install --user tabulate-0.7.3.tar.gz 
+# Install from bioconductor
+	source("http://bioconductor.org/biocLite.R") biocLite().
+# ggplot colors function
+	ggplotColours <- function(n=6, h=c(0, 360) +15){
+	  if ((diff(h)%%360) < 1) h[2] <- h[2] - 360/n
+	  hcl(h = (seq(h[1], h[2], length = n)), c = 100, l = 65)
+	}
+	# barplot(y, col=ggplotColours(n=3))
+# Get strings first 11, after first 11
+	(my $person = $amp)    =~ s/^([ACTG]{11}).*/$1/;
+	(my $seq = $amp) =~ s/^[ACTG]{11}//;
+# Group permissions
+	chgrp -R team29 dk6
